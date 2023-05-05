@@ -5,18 +5,7 @@
 
 #include "trie.h"
 
-int main(int argc, char *argv) {
-    Trie t = create_node();
-
-    insert(t, "hi");
-    insert(t, "hello");
-    insert(t, "hey");
-    printf("Search for dog: %d\n", search(t, "dog"));
-
-    print_all_words(t, "");
-
-    return 0;
-}
+#define MAX_WORD_LENGTH 128
 
 Trie create_node() {
     Trie new_node = malloc(sizeof(struct trie_node));
@@ -76,6 +65,27 @@ void print_all_words(Trie current, char *current_word) {
         }
     }
     return;
+}
+
+int load_file(Trie t, char *file_name, int max_word_length) {
+    FILE *words_file = fopen(file_name, "r");
+    char *word = malloc(sizeof(max_word_length + 1) * sizeof(char));
+
+    if (words_file == NULL) {
+        fprintf(stderr, "Unable to open words file\n");
+        return -1;
+    }
+    if (word == NULL) {
+        fprintf(stderr, "No memory\n");
+        return -1;
+    }
+
+    while (fgets(word, max_word_length + 1, words_file) != NULL) {
+        if (word[0] != '\n') {
+            insert(t, word);
+        }
+    }
+    return 0;
 }
 
 

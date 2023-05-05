@@ -10,3 +10,4 @@ Trie create_node();
 int insert(Trie root, char *word);
 bool search(Trie root, const char *word);
 void print_all_words(Trie current, char *current_word);
+int load_file(Trie t, char *file_name, int max_word_length);
