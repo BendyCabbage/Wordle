@@ -37,10 +37,11 @@ void find_possible_words(
     struct letter_counts counts[ALPHABET_SIZE]
 );
 
-void print_matching_words(
-    Trie t, int depth, char *current_word,     
+int output_matching_words(
+    Trie t, int depth, char *current_word,    
     bool letter_possibilities[WORD_LEN][ALPHABET_SIZE], 
-    struct letter_counts counts[ALPHABET_SIZE]
+    struct letter_counts counts[ALPHABET_SIZE], 
+    FILE *output_file
 );
 
 int main (int argc, char *argv[]) {
@@ -164,49 +165,60 @@ void find_possible_words(
     load_file(allowed_answers, "wordle_allowed_answers.txt", WORD_LEN);
 
     char current_word[WORD_LEN + 1];
+    FILE *guesses_file = fopen("guesses.txt", "w");
+    FILE *answers_file = fopen("answers.txt", "w");
 
-    printf("Possible guesses: \n");
-    print_matching_words(allowed_guesses, 0, current_word, letter_possibilities, counts);
+    int num_guesses = output_matching_words(
+        allowed_guesses, 0, current_word, 
+        letter_possibilities, counts, 
+        guesses_file
+    );
 
-    printf("Possible answers: \n");
-    print_matching_words(allowed_answers, 0, current_word, letter_possibilities, counts);
+    int num_answers = output_matching_words(
+        allowed_answers, 0, current_word, 
+        letter_possibilities, counts, 
+        answers_file
+    );
+    printf("Number of possible guesses: %d\n", num_guesses);
+    printf("Number of possible answers: %d\n", num_answers);
+
+    return;
 }
 
-void print_matching_words(
-    Trie t, int depth, char *current_word,     
+int output_matching_words(
+    Trie t, int depth, char *current_word,    
     bool letter_possibilities[WORD_LEN][ALPHABET_SIZE], 
-    struct letter_counts counts[ALPHABET_SIZE]
+    struct letter_counts counts[ALPHABET_SIZE], FILE *output_file
 ) {
-    if (t == NULL) return;
+    if (t == NULL) return 0;
 
     if (t->is_end_of_word) {
-        //Need to check it meets counts requirements still
         int word_counts[ALPHABET_SIZE] = {0};
         for (int i = 0; i < WORD_LEN; i++) {
             word_counts[current_word[i] - 'a']++;
         }
         for (int i = 0; i < ALPHABET_SIZE; i++) {
             if (word_counts[i] < counts[i].min || word_counts[i] > counts[i].max) {
-                return;
+                return 0;
             }
         }
         current_word[WORD_LEN] = '\0';
-        printf("%s\n", current_word);
-        return;
+        fprintf(output_file, "%s\n", current_word);
+        return 1;
     }
-
+    int word_count = 0;
     char letter;
     for (int i = 0; i < ALPHABET_SIZE; i++) {
         letter = i + 'a';
         if (letter_possibilities[depth][i] && t->letters[i] != NULL) {
             current_word[depth] = letter;
-            print_matching_words(
+            word_count += output_matching_words(
                 t->letters[i], depth + 1, current_word, 
-                letter_possibilities, counts
+                letter_possibilities, counts, output_file
             );
         }
     }
-    return;
+    return word_count;
 }
 
 
