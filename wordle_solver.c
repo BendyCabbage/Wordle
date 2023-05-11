@@ -4,47 +4,10 @@
 #include <stdbool.h>
 
 #include "trie.c"
+#include "wordle_solver.h"
 
-#define WORD_LEN 5
-#define LINE_LEN 11
-#define ALPHABET_SIZE 26
 
-#define GREEN 'g'
-#define YELLOW 'y'
-
-struct letter_counts {
-    int min;
-    int max;
-};
-
-int min(int i, int j);
-int max(int i, int j);
-
-void init(
-    bool letter_possibilities[WORD_LEN][ALPHABET_SIZE], 
-    struct letter_counts counts[ALPHABET_SIZE]
-);
-void scan_guesses(    
-    bool letter_possibilities[WORD_LEN][ALPHABET_SIZE],
-    struct letter_counts counts[ALPHABET_SIZE]
-);
-
-void confirm_letter(bool letter_possibilities[WORD_LEN][ALPHABET_SIZE], int letter_pos, char letter);
-void remove_letter(bool letter_possibilities[WORD_LEN][ALPHABET_SIZE], char letter);
-
-void find_possible_words(    
-    bool letter_possibilities[WORD_LEN][ALPHABET_SIZE], 
-    struct letter_counts counts[ALPHABET_SIZE]
-);
-
-int output_matching_words(
-    Trie t, int depth, char *current_word,    
-    bool letter_possibilities[WORD_LEN][ALPHABET_SIZE], 
-    struct letter_counts counts[ALPHABET_SIZE], 
-    FILE *output_file
-);
-
-int main (int argc, char *argv[]) {
+int main() {
     bool letter_possibilities[WORD_LEN][ALPHABET_SIZE];
     struct letter_counts counts[ALPHABET_SIZE];
 
@@ -165,8 +128,8 @@ void find_possible_words(
     load_file(allowed_answers, "wordle_allowed_answers.txt", WORD_LEN);
 
     char current_word[WORD_LEN + 1];
-    FILE *guesses_file = fopen("guesses.txt", "w");
-    FILE *answers_file = fopen("answers.txt", "w");
+    FILE *guesses_file = fopen(OUTPUT_GUESSES_FILE, "w");
+    FILE *answers_file = fopen(OUTPUT_ANSWERS_FILE, "w");
 
     int num_guesses = output_matching_words(
         allowed_guesses, 0, current_word, 

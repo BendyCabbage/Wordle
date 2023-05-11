@@ -37,10 +37,10 @@ bool search(Trie root, const char *word) {
     for (int i = 0; word[i] != '\0'; i++) {
         int index = word[i] - 'a';
 
-        if (current->letters[i] == NULL) {
+        if (current->letters[index] == NULL) {
             return false;
         }
-        current = current->letters[i];
+        current = current->letters[index];
     }
     return current != NULL && current->is_end_of_word;
 }
