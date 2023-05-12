@@ -7,30 +7,6 @@
 
 char *evaluate(char *wordle, char *guess, char evaluation[2 * WORD_LEN + 1]);
 
-int main(int argc, char **argv) {
-    char wordle[WORD_LEN + 1];
-    char guess[WORD_LEN + 1];
-    char evaluation[2 * WORD_LEN + 1];
-
-    if (argc == 2) {
-        strcpy(wordle, argv[1]);
-    } else if (argc > 2) {
-        strcpy(wordle, argv[1]);
-        for (int i = 2; i < argc; i++) {
-            printf("%s\n", evaluate(wordle, argv[i], evaluation));
-        }
-    } else {
-        printf("Enter the wordle: ");
-        fgets(wordle, WORD_LEN + 1, stdin);
-    }
-
-    while (fgets(guess, WORD_LEN + 1, stdin) != NULL) {
-        if (guess[0] == '\n') continue;
-        printf("%s\n", evaluate(wordle, guess, evaluation));
-    }
-    return 0;
-}
-
 //Given a guess and a wordle outputs an evaluation string
 //Dictating the yellows, greens etc. for the guess.
 char *evaluate(char *wordle, char *guess, char evaluation[2 * WORD_LEN + 1]) {

@@ -2,3 +2,5 @@
 wordle_solver
 answers.txt
 guesses.txt
+trie.exe
+*.txt

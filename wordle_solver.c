@@ -6,20 +6,36 @@
 #include "trie.c"
 #include "wordle_solver.h"
 
+char OUTPUT_GUESSES_FILE[] = "guesses.txt";
+char OUTPUT_ANSWERS_FILE[] = "answers.txt";
 
-int main() {
+FILE *output_file;
+FILE *input_file;
+char *word_list;
+
+/*
+Current todo list:
+-   Modify scan guesses to have 2 separate functions, process_guesses() which calls scan_guesses()
+    Idea is to be able to input an already scanned in string into process_guesses() so that this file never needs to scan input
+
+-   Input to solve being if answers and/or guesses files are being checked and appended to.
+*/
+
+int solve(char *input_filename, char *output_filename, char *word_list_name) {
     bool letter_possibilities[WORD_LEN][ALPHABET_SIZE];
     struct letter_counts counts[ALPHABET_SIZE];
 
-    init(letter_possibilities, counts);
+    init(letter_possibilities, counts, input_filename, output_filename, word_list_name);
     scan_guesses(letter_possibilities, counts);
-    find_possible_words(letter_possibilities, counts);
-    return 0;
+
+    return find_possible_words(letter_possibilities, counts);;
 }
 
-void init(
+int init(
     bool letter_possibilities[WORD_LEN][ALPHABET_SIZE], 
-    struct letter_counts counts[ALPHABET_SIZE]
+    struct letter_counts counts[ALPHABET_SIZE],
+    char *input_filename, char *output_filename,
+    char *word_list_name
 ) {
     for (int i = 0; i < ALPHABET_SIZE; i++) {
         counts[i].min = 0;
@@ -29,6 +45,29 @@ void init(
             letter_possibilities[j][i] = true;
         }
     }
+    if (input_filename == NULL) {
+        input_file = stdin;
+    } else {
+        input_file = fopen(input_filename, "r");
+    }
+
+    if (output_filename == NULL) {
+        output_file = fopen(DEFAULT_OUTPUT_FILE, "w");
+    } else {
+        output_file = fopen(output_filename, "w");
+    }
+
+    if (word_list_name == NULL) {
+        word_list = DEFAULT_WORD_LIST;
+    } else {
+        word_list = word_list_name;
+    }
+
+    if (input_file == NULL || output_file == NULL || word_list == NULL) {
+        return -1;
+    }
+
+    return 0;
 }
 
 /*
@@ -46,15 +85,13 @@ void scan_guesses(
     bool letter_possibilities[WORD_LEN][ALPHABET_SIZE],
     struct letter_counts counts[ALPHABET_SIZE]
 ) {
-    printf("Enter your guesses: \n");
-
     char type, letter;
     char line[LINE_LEN];
     int index;
 
     int word_counts[ALPHABET_SIZE];
 
-    while (fgets(line, LINE_LEN, stdin) != NULL) {
+    while (fgets(line, LINE_LEN, input_file) != NULL) {
         if (line[0] == '\n') continue;
 
         for (int i = 0; i < ALPHABET_SIZE; i++) {
@@ -117,10 +154,11 @@ void remove_letter(bool letter_possibilities[WORD_LEN][ALPHABET_SIZE], char lett
     }
 }
 
-void find_possible_words(    
+int find_possible_words(    
     bool letter_possibilities[WORD_LEN][ALPHABET_SIZE], 
     struct letter_counts counts[ALPHABET_SIZE]
 ) {
+    /*
     Trie allowed_guesses = create_node();
     Trie allowed_answers = create_node();
 
@@ -144,8 +182,19 @@ void find_possible_words(
     );
     printf("Number of possible guesses: %d\n", num_guesses);
     printf("Number of possible answers: %d\n", num_answers);
+    */
 
-    return;
+    Trie allowed_words = create_node();
+    load_file(allowed_words, word_list, WORD_LEN);
+
+    char current_word[WORD_LEN + 1];
+    int num_words = output_matching_words(
+        allowed_words, 0, current_word, 
+        letter_possibilities, counts, 
+        output_file
+    );
+
+    return num_words;
 }
 
 int output_matching_words(

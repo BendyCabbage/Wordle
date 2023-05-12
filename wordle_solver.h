@@ -5,8 +5,8 @@
 #define GREEN 'g'
 #define YELLOW 'y'
 
-#define OUTPUT_GUESSES_FILE "guesses.txt"
-#define OUTPUT_ANSWERS_FILE "answers.txt"
+#define DEFAULT_OUTPUT_FILE "possible_words.txt"
+#define DEFAULT_WORD_LIST "wordle_allowed_answers.txt"
 
 struct letter_counts {
     int min;
@@ -16,10 +16,13 @@ struct letter_counts {
 int min(int i, int j);
 int max(int i, int j);
 
-void init(
+int init(
     bool letter_possibilities[WORD_LEN][ALPHABET_SIZE], 
-    struct letter_counts counts[ALPHABET_SIZE]
+    struct letter_counts counts[ALPHABET_SIZE],
+    char *input_filename, char *output_filename,
+    char *word_list_name
 );
+
 void scan_guesses(    
     bool letter_possibilities[WORD_LEN][ALPHABET_SIZE],
     struct letter_counts counts[ALPHABET_SIZE]
@@ -28,7 +31,7 @@ void scan_guesses(
 void confirm_letter(bool letter_possibilities[WORD_LEN][ALPHABET_SIZE], int letter_pos, char letter);
 void remove_letter(bool letter_possibilities[WORD_LEN][ALPHABET_SIZE], char letter);
 
-void find_possible_words(    
+int find_possible_words(    
     bool letter_possibilities[WORD_LEN][ALPHABET_SIZE], 
     struct letter_counts counts[ALPHABET_SIZE]
 );
@@ -39,3 +42,5 @@ int output_matching_words(
     struct letter_counts counts[ALPHABET_SIZE], 
     FILE *output_file
 );
+
+int solve(char *input_filename, char *output_filename, char *word_list_name);
