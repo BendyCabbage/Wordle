@@ -3,8 +3,7 @@
 #include <string.h>
 #include <stdbool.h>
 
-#include "trie.c
-"
+#include "trie.c"
 #include "wordle_solver.h"
 
 
