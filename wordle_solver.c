@@ -25,10 +25,18 @@ int solve(char *input_filename, char *output_filename, char *word_list_name) {
     bool letter_possibilities[WORD_LEN][ALPHABET_SIZE];
     struct letter_counts counts[ALPHABET_SIZE];
 
-    init(letter_possibilities, counts, input_filename, output_filename, word_list_name);
+    if (init(letter_possibilities, counts, input_filename, output_filename, word_list_name) != 0) {
+        fprintf(stderr, "Initialisation failed. Check input, output and word list names are correct\n");
+        return 0;
+    }
     scan_guesses(letter_possibilities, counts);
+    int num_possible_words = find_possible_words(letter_possibilities, counts);
 
-    return find_possible_words(letter_possibilities, counts);;
+    fclose(output_file);
+    fclose(input_file);
+
+
+    return num_possible_words;
 }
 
 int init(
@@ -158,32 +166,6 @@ int find_possible_words(
     bool letter_possibilities[WORD_LEN][ALPHABET_SIZE], 
     struct letter_counts counts[ALPHABET_SIZE]
 ) {
-    /*
-    Trie allowed_guesses = create_node();
-    Trie allowed_answers = create_node();
-
-    load_file(allowed_guesses, "wordle_allowed_guesses.txt", WORD_LEN);
-    load_file(allowed_answers, "wordle_allowed_answers.txt", WORD_LEN);
-
-    char current_word[WORD_LEN + 1];
-    FILE *guesses_file = fopen(OUTPUT_GUESSES_FILE, "w");
-    FILE *answers_file = fopen(OUTPUT_ANSWERS_FILE, "w");
-
-    int num_guesses = output_matching_words(
-        allowed_guesses, 0, current_word, 
-        letter_possibilities, counts, 
-        guesses_file
-    );
-
-    int num_answers = output_matching_words(
-        allowed_answers, 0, current_word, 
-        letter_possibilities, counts, 
-        answers_file
-    );
-    printf("Number of possible guesses: %d\n", num_guesses);
-    printf("Number of possible answers: %d\n", num_answers);
-    */
-
     Trie allowed_words = create_node();
     load_file(allowed_words, word_list, WORD_LEN);
 
@@ -193,7 +175,7 @@ int find_possible_words(
         letter_possibilities, counts, 
         output_file
     );
-
+    destroy(allowed_words);
     return num_words;
 }
 

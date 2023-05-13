@@ -25,6 +25,13 @@ Overall steps for finding best possible next guess:
 
 */
 
+struct guess_score {
+    char guess[WORD_LEN + 1];
+    int sum_remaining_answers;
+};
+
+void init_guesses(char *filename, struct guess_score *guesses, int offset);
+
 int main (int argc, char **argv) {
     char evaluation[2 * WORD_LEN + 1];
 
@@ -39,7 +46,28 @@ int main (int argc, char **argv) {
         return -1;
     }
 
+    
+    struct guess_score guesses[num_initial_answers + num_initial_guesses];
+    init_guesses("initial_answers.txt", guesses, 0);
+    init_guesses("initial_guesses.txt", guesses, num_initial_answers);
 
+    for (int i = 0; i < num_initial_answers + num_initial_guesses; i++) {
+        printf("%s: %d\n", guesses[i].guess, guesses[i].sum_remaining_answers);
+    }
 
     return 0;
+}
+
+void init_guesses(char *filename, struct guess_score *guesses, int offset) {
+    FILE *words = fopen(filename, "r");
+    char line[WORD_LEN + 1];
+    int index = offset;
+    while (fread(line, sizeof(char), WORD_LEN + 1, words) > 0) {
+        line[WORD_LEN] = '\0';
+        strcpy(guesses[index].guess, line);
+        guesses[index].sum_remaining_answers = 0;
+        index++;
+    }
+
+    fclose(words);
 }

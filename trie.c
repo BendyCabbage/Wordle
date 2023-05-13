@@ -85,7 +85,16 @@ int load_file(Trie t, char *file_name, int max_word_length) {
             insert(t, word);
         }
     }
+    fclose(words_file);
     return 0;
+}
+
+void destroy(Trie t) {
+    if (t == NULL) return;
+    for (int i = 0; i < ALPHABET_SIZE; i++) {
+        destroy(t->letters[i]);
+    }
+    free(t);
 }
 
 
