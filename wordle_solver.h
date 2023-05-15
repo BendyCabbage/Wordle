@@ -1,5 +1,5 @@
 #define WORD_LEN 5
-#define LINE_LEN 11
+#define LINE_LEN 2 * WORD_LEN + 1
 #define ALPHABET_SIZE 26
 
 #define GREEN 'g'
@@ -19,11 +19,12 @@ int max(int i, int j);
 int init(
     bool letter_possibilities[WORD_LEN][ALPHABET_SIZE], 
     struct letter_counts counts[ALPHABET_SIZE],
-    char *input_filename, char *output_filename,
+    char *output_filename,
     char *word_list_name
 );
 
-void scan_guesses(    
+void scan_guesses(
+    int num_guesses, char **guesses,    
     bool letter_possibilities[WORD_LEN][ALPHABET_SIZE],
     struct letter_counts counts[ALPHABET_SIZE]
 );
@@ -43,4 +44,4 @@ int output_matching_words(
     FILE *output_file
 );
 
-int solve(char *input_filename, char *output_filename, char *word_list_name);
+int solve(int num_guesses, char **guesses, char *output_filename, char *word_list_name);

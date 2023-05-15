@@ -10,7 +10,6 @@ char OUTPUT_GUESSES_FILE[] = "guesses.txt";
 char OUTPUT_ANSWERS_FILE[] = "answers.txt";
 
 FILE *output_file;
-FILE *input_file;
 char *word_list;
 
 /*
@@ -21,20 +20,27 @@ Current todo list:
 -   Input to solve being if answers and/or guesses files are being checked and appended to.
 */
 
-int solve(char *input_filename, char *output_filename, char *word_list_name) {
+int solve(int num_guesses, char **guesses, char *output_filename, char *word_list_name) {
     bool letter_possibilities[WORD_LEN][ALPHABET_SIZE];
     struct letter_counts counts[ALPHABET_SIZE];
 
-    if (init(letter_possibilities, counts, input_filename, output_filename, word_list_name) != 0) {
+    printf("NUM GUESSES: %d\n", num_guesses);
+
+    for (int i = 0; i < num_guesses; i++) {
+        printf("Guess %d: %s\n", i, guesses[i]);
+    }
+    printf("WHAT\n");
+
+    if (init(letter_possibilities, counts, output_filename, word_list_name) != 0) {
         fprintf(stderr, "Initialisation failed. Check input, output and word list names are correct\n");
         return 0;
     }
-    scan_guesses(letter_possibilities, counts);
+    printf("Finished init\n");
+
+    scan_guesses(num_guesses, guesses, letter_possibilities, counts);
     int num_possible_words = find_possible_words(letter_possibilities, counts);
 
     fclose(output_file);
-    fclose(input_file);
-
 
     return num_possible_words;
 }
@@ -42,9 +48,10 @@ int solve(char *input_filename, char *output_filename, char *word_list_name) {
 int init(
     bool letter_possibilities[WORD_LEN][ALPHABET_SIZE], 
     struct letter_counts counts[ALPHABET_SIZE],
-    char *input_filename, char *output_filename,
+    char *output_filename,
     char *word_list_name
 ) {
+    printf("Start of init\n");
     for (int i = 0; i < ALPHABET_SIZE; i++) {
         counts[i].min = 0;
         counts[i].max = 3;
@@ -52,11 +59,6 @@ int init(
         for (int j = 0; j < WORD_LEN; j++) {
             letter_possibilities[j][i] = true;
         }
-    }
-    if (input_filename == NULL) {
-        input_file = stdin;
-    } else {
-        input_file = fopen(input_filename, "r");
     }
 
     if (output_filename == NULL) {
@@ -71,10 +73,10 @@ int init(
         word_list = word_list_name;
     }
 
-    if (input_file == NULL || output_file == NULL || word_list == NULL) {
+    if (output_file == NULL || word_list == NULL) {
         return -1;
     }
-
+    printf("End of init\n");
     return 0;
 }
 
@@ -89,18 +91,21 @@ int init(
 
     Does not need to run efficiently as max 6 inputted words
 */
-void scan_guesses(    
+void scan_guesses(
+    int num_guesses, char **guesses,
     bool letter_possibilities[WORD_LEN][ALPHABET_SIZE],
     struct letter_counts counts[ALPHABET_SIZE]
 ) {
+    if (num_guesses <= 0) return;
+
     char type, letter;
     char line[LINE_LEN];
     int index;
 
     int word_counts[ALPHABET_SIZE];
 
-    while (fgets(line, LINE_LEN, input_file) != NULL) {
-        if (line[0] == '\n') continue;
+    for (int i = 0; i < num_guesses; i++) {
+        printf("Processing %s\n", guesses[i]);
 
         for (int i = 0; i < ALPHABET_SIZE; i++) {
             word_counts[i] = 0;
@@ -108,8 +113,8 @@ void scan_guesses(
 
         //Loop over guess and check yellows and greens
         for (int i = 0; i < WORD_LEN; i++) {
-            type = line[2 * i];
-            letter = line[2 * i + 1]; 
+            type = guesses[i][2 * i];
+            letter = guesses[i][2 * i + 1]; 
             index = letter - 'a';
 
             if (type == GREEN) {
@@ -122,8 +127,8 @@ void scan_guesses(
         }
         //Loop over guess again and check greys
         for (int i = 0; i < WORD_LEN; i++) {
-            type = line[2 * i];
-            letter = line[2 * i + 1]; 
+            type = guesses[i][2 * i];
+            letter = guesses[i][2 * i + 1]; 
             index = letter - 'a';
 
             if (type != GREEN && type != YELLOW) {

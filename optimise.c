@@ -10,6 +10,7 @@
 
 #define DEFAULT_INPUT_FILE "default_input.txt"
 
+#define MAX_GUESSES 6
 /*
 int solve(char *input_filename, char *output_filename, char *word_list_name);
 
@@ -33,10 +34,26 @@ struct guess_score {
 void init_guesses(char *filename, struct guess_score *guesses, int offset);
 
 int main (int argc, char **argv) {
-    char evaluation[2 * WORD_LEN + 1];
+    int num_guesses = min(argc - 1, MAX_GUESSES);
+    printf("Num guesses: %d\n", num_guesses);
 
-    int num_initial_guesses = solve(DEFAULT_INPUT_FILE, "initial_guesses.txt", GUESSES_FILE);
-    int num_initial_answers = solve(DEFAULT_INPUT_FILE, "initial_answers.txt", ANSWERS_FILE);
+    char **guesses = NULL;
+    if (num_guesses > 0) {
+        guesses = malloc(sizeof(char) * LINE_LEN * num_guesses);
+    }
+    printf("WHAT\n");
+    for (int i = 0; i < num_guesses; i++) {
+        printf("Strcpy to %d with %s\n", i, argv[i + 1]);
+        guesses[i][0] = 'i';
+        strcpy(guesses[i], argv[i + 1]);
+        printf("After strcpy\n");
+    }
+
+    printf("Starting the meat\n");
+    int num_initial_guesses = solve(num_guesses, guesses, "initial_guesses.txt", GUESSES_FILE);
+    int num_initial_answers = solve(num_guesses, guesses, "initial_answers.txt", ANSWERS_FILE);
+    
+    free(guesses);
 
     printf("Num guesses: %d\n", num_initial_guesses);
     printf("Num initial answers: %d\n", num_initial_answers);
@@ -47,13 +64,14 @@ int main (int argc, char **argv) {
     }
 
     
-    struct guess_score guesses[num_initial_answers + num_initial_guesses];
-    init_guesses("initial_answers.txt", guesses, 0);
-    init_guesses("initial_guesses.txt", guesses, num_initial_answers);
+    struct guess_score gs[num_initial_answers + num_initial_guesses];
+    init_guesses("initial_answers.txt", gs, 0);
+    init_guesses("initial_guesses.txt", gs, num_initial_answers);
 
+    /*
     for (int i = 0; i < num_initial_answers + num_initial_guesses; i++) {
-        printf("%s: %d\n", guesses[i].guess, guesses[i].sum_remaining_answers);
-    }
+        printf("%s: %d\n", gs[i].guess, gs[i].sum_remaining_answers);
+    }*/
 
     return 0;
 }
