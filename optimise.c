@@ -10,6 +10,7 @@
 
 #define DEFAULT_INPUT_FILE "input.txt"
 
+#define MAX_GUESSES 6
 /*
 int solve(char *input_filename, char *output_filename, char *word_list_name);
 

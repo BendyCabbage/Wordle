@@ -1,5 +1,5 @@
 #define WORD_LEN 5
-#define LINE_LEN 11
+#define LINE_LEN 2 * WORD_LEN + 1
 #define ALPHABET_SIZE 26
 
 #define GREEN 'g'

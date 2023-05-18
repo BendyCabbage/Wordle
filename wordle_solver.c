@@ -24,10 +24,15 @@ int solve(int num_guesses, char guesses[num_guesses][LINE_LEN], char *output_fil
     bool letter_possibilities[WORD_LEN][ALPHABET_SIZE];
     struct letter_counts counts[ALPHABET_SIZE];
 
+    for (int i = 0; i < num_guesses; i++) {
+        printf("Guess %d: %s\n", i, guesses[i]);
+    }
+
     if (init(letter_possibilities, counts, output_filename, word_list_name) != 0) {
         fprintf(stderr, "Initialisation failed. Check output and word list names are correct\n");
         return 0;
     }
+
     scan_guesses(num_guesses, guesses, letter_possibilities, counts);
     int num_possible_words = find_possible_words(letter_possibilities, counts);
 
@@ -42,6 +47,7 @@ int init(
     char *output_filename,
     char *word_list_name
 ) {
+    printf("Start of init\n");
     for (int i = 0; i < ALPHABET_SIZE; i++) {
         counts[i].min = 0;
         counts[i].max = 3;
@@ -50,6 +56,7 @@ int init(
             letter_possibilities[j][i] = true;
         }
     }
+
     if (output_filename == NULL) {
         output_file = fopen(DEFAULT_OUTPUT_FILE, "w");
     } else {
@@ -65,7 +72,7 @@ int init(
     if (output_file == NULL || word_list == NULL) {
         return -1;
     }
-
+    printf("End of init\n");
     return 0;
 }
 
@@ -74,6 +81,8 @@ void scan_guesses(
     bool letter_possibilities[WORD_LEN][ALPHABET_SIZE],
     struct letter_counts counts[ALPHABET_SIZE]
 ) {
+    if (num_guesses <= 0) return;
+
     char type, letter;
     char line[LINE_LEN];
     int index;
@@ -90,6 +99,7 @@ void scan_guesses(
         for (int i = 0; i < WORD_LEN; i++) {
             type = guesses[guess_count][2 * i];
             letter = guesses[guess_count][2 * i + 1]; 
+
             index = letter - 'a';
 
             if (type == GREEN) {
