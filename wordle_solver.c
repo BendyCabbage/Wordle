@@ -10,7 +10,6 @@ char OUTPUT_GUESSES_FILE[] = "guesses.txt";
 char OUTPUT_ANSWERS_FILE[] = "answers.txt";
 
 FILE *output_file;
-char *word_list;
 
 /*
 Current todo list:
@@ -20,21 +19,21 @@ Current todo list:
 -   Input to solve being if answers and/or guesses files are being checked and appended to.
 */
 
-int solve(int num_guesses, char guesses[num_guesses][LINE_LEN], char *output_filename, char *word_list_name) {
+int solve(
+    int num_guesses, char guesses[num_guesses][LINE_LEN], 
+    char *output_filename,
+    Trie allowed_words
+) {
     bool letter_possibilities[WORD_LEN][ALPHABET_SIZE];
     struct letter_counts counts[ALPHABET_SIZE];
 
-    for (int i = 0; i < num_guesses; i++) {
-        printf("Guess %d: %s\n", i, guesses[i]);
-    }
-
-    if (init(letter_possibilities, counts, output_filename, word_list_name) != 0) {
+    if (init(letter_possibilities, counts, output_filename) != 0) {
         fprintf(stderr, "Initialisation failed. Check output and word list names are correct\n");
         return 0;
     }
 
     scan_guesses(num_guesses, guesses, letter_possibilities, counts);
-    int num_possible_words = find_possible_words(letter_possibilities, counts);
+    int num_possible_words = find_possible_words(allowed_words, letter_possibilities, counts);
 
     fclose(output_file);
 
@@ -44,10 +43,8 @@ int solve(int num_guesses, char guesses[num_guesses][LINE_LEN], char *output_fil
 int init(
     bool letter_possibilities[WORD_LEN][ALPHABET_SIZE], 
     struct letter_counts counts[ALPHABET_SIZE],
-    char *output_filename,
-    char *word_list_name
+    char *output_filename
 ) {
-    printf("Start of init\n");
     for (int i = 0; i < ALPHABET_SIZE; i++) {
         counts[i].min = 0;
         counts[i].max = 3;
@@ -63,16 +60,9 @@ int init(
         output_file = fopen(output_filename, "w");
     }
 
-    if (word_list_name == NULL) {
-        word_list = DEFAULT_WORD_LIST;
-    } else {
-        word_list = word_list_name;
-    }
-
-    if (output_file == NULL || word_list == NULL) {
+    if (output_file == NULL) {
         return -1;
     }
-    printf("End of init\n");
     return 0;
 }
 
@@ -89,8 +79,7 @@ void scan_guesses(
 
     int word_counts[ALPHABET_SIZE];
 
-    int guess_count = 0; 
-    while (guess_count < num_guesses) {
+    for (int guess_count = 0; guess_count < num_guesses; guess_count++) {
         for (int i = 0; i < ALPHABET_SIZE; i++) {
             word_counts[i] = 0;
         }
@@ -153,19 +142,16 @@ void remove_letter(bool letter_possibilities[WORD_LEN][ALPHABET_SIZE], char lett
 }
 
 int find_possible_words(    
+    Trie allowed_words,
     bool letter_possibilities[WORD_LEN][ALPHABET_SIZE], 
     struct letter_counts counts[ALPHABET_SIZE]
 ) {
-    Trie allowed_words = create_node();
-    load_file(allowed_words, word_list, WORD_LEN);
-
     char current_word[WORD_LEN + 1];
     int num_words = output_matching_words(
         allowed_words, 0, current_word, 
         letter_possibilities, counts, 
         output_file
     );
-    destroy(allowed_words);
     return num_words;
 }
 

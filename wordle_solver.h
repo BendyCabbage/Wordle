@@ -19,8 +19,7 @@ int max(int i, int j);
 int init(
     bool letter_possibilities[WORD_LEN][ALPHABET_SIZE], 
     struct letter_counts counts[ALPHABET_SIZE],
-    char *output_filename,
-    char *word_list_name
+    char *output_filename
 );
 
 void scan_guesses(  
@@ -33,6 +32,7 @@ void confirm_letter(bool letter_possibilities[WORD_LEN][ALPHABET_SIZE], int lett
 void remove_letter(bool letter_possibilities[WORD_LEN][ALPHABET_SIZE], char letter);
 
 int find_possible_words(    
+    Trie allowed_words,
     bool letter_possibilities[WORD_LEN][ALPHABET_SIZE], 
     struct letter_counts counts[ALPHABET_SIZE]
 );
@@ -44,4 +44,8 @@ int output_matching_words(
     FILE *output_file
 );
 
-int solve(int num_guesses, char guesses[num_guesses][LINE_LEN], char *output_filename, char *word_list_name);
+int solve(
+    int num_guesses, char guesses[num_guesses][LINE_LEN], 
+    char *output_filename,
+    Trie allowed_words
+);
