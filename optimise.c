@@ -8,6 +8,7 @@
 #define ANSWERS_FILE "wordle_allowed_answers.txt"
 #define GUESSES_FILE "wordle_allowed_guesses.txt"
 #define COMBINED_FILE "wordle_combined_words.txt"
+#define RESULT_FILE "results.txt"
 
 #define DEFAULT_INPUT_FILE "input.txt"
 
@@ -68,10 +69,10 @@ int main (int argc, char **argv) {
     //List of answers = gs[0..num_initial_answers - 1].guess
     //List of guesses = gs[num_initial_answers..num_initial_answers + num_initial_guesses - 1].guess
 
-
     //For every answer
     for (int i = 0; i < num_initial_answers; i++) {
         //For every possible guess
+        printf("Evaluating %d\n", i);
         for (int j = 0; j < num_initial_answers + num_initial_guesses; j++) {
             //Answer = gs[i].guess
             //Guess = gs[j].guess
@@ -82,12 +83,16 @@ int main (int argc, char **argv) {
             gs[j].sum_remaining_answers += remaining_answers;
         }
     }
+    FILE *results = fopen(RESULT_FILE, "w");
+
     qsort(gs, num_initial_answers + num_initial_guesses, sizeof(struct guess_score), sort_compare);
     for (int i = 0; i < num_initial_answers + num_initial_guesses; i++) {
-        if (gs[i].sum_remaining_answers <= 0) continue;
-        printf("Guess: %s, sum: %d, is answer: %d\n", gs[i].guess, gs[i].sum_remaining_answers, gs[i].is_answer);
+        if (gs[i].sum_remaining_answers < num_initial_answers) continue;
+        //printf("Guess: %s, sum: %d, is answer: %d\n", gs[i].guess, gs[i].sum_remaining_answers, gs[i].is_answer);
+        fprintf(results, "%d. %s, %d, %d\n", i, gs[i].guess, gs[i].sum_remaining_answers, gs[i].is_answer);
     }
-
+    printf("Finished\n");
+    fclose(results);
     return 0;
 }
 
