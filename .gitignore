@@ -1,12 +1,2 @@
-
-wordle_solver
-answers.txt
-guesses.txt
-trie.exe
 *.txt
-optimise
-optimise
-trial.c
-optimise
-trial
-optimise
+main

@@ -23,7 +23,7 @@ Overall steps for finding best possible next guess:
         For each possible guess:
             evaluate(answer, guess) and strcat(existing guesses, evaluation)
             solve(added guesses), count number of remaining answers
-    sort all (guess, count of remaining answers) in descending order
+    sort all (guess, count of remaining answers) in descending order of remaining answers
     pick first one
 
 */
@@ -69,13 +69,12 @@ int main (int argc, char **argv) {
     //List of answers = gs[0..num_initial_answers - 1].guess
     //List of guesses = gs[num_initial_answers..num_initial_answers + num_initial_guesses - 1].guess
 
-    //For every answer
     for (int i = 0; i < num_initial_answers; i++) {
-        //For every possible guess
-        printf("Evaluating %d\n", i);
+        if (num_initial_answers + num_initial_guesses > 100) {
+            printf("Evaluating %d/%d\n", i, num_initial_answers);
+        }
+
         for (int j = 0; j < num_initial_answers + num_initial_guesses; j++) {
-            //Answer = gs[i].guess
-            //Guess = gs[j].guess
             char evaluation[2 * WORD_LEN + 1];
             evaluate(gs[i].guess, gs[j].guess, evaluation);
             strcpy(guesses[num_guesses], evaluation);
@@ -84,15 +83,17 @@ int main (int argc, char **argv) {
         }
     }
     FILE *results = fopen(RESULT_FILE, "w");
-
+    printf("Before sort\n");
     qsort(gs, num_initial_answers + num_initial_guesses, sizeof(struct guess_score), sort_compare);
     for (int i = 0; i < num_initial_answers + num_initial_guesses; i++) {
+        printf("Printing more shit\n");
         if (gs[i].sum_remaining_answers < num_initial_answers) continue;
-        //printf("Guess: %s, sum: %d, is answer: %d\n", gs[i].guess, gs[i].sum_remaining_answers, gs[i].is_answer);
         fprintf(results, "%d. %s, %d, %d\n", i, gs[i].guess, gs[i].sum_remaining_answers, gs[i].is_answer);
+        printf("Printing even more shit, i = %d\n", i);
     }
-    printf("Finished\n");
+    printf("YEAH\n");
     fclose(results);
+    printf("DONE FUCK YEAH\n");
     return 0;
 }
 
